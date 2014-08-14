@@ -102,8 +102,6 @@ public class ArmoredOutputStream
     String          footerStart = "-----END PGP ";
     String          footerTail = "-----";
 
-    String          version = "BCPG v@RELEASE_NAME@";
-
     Hashtable       headers = new Hashtable();
 
     /**
@@ -120,8 +118,6 @@ public class ArmoredOutputStream
         {
             nl = "\r\n";
         }
-
-        headers.put(VERSION_HDR, version);
     }
 
     /**
@@ -172,14 +168,7 @@ public class ArmoredOutputStream
      */
     public void resetHeaders()
     {
-        String version = (String)headers.get(VERSION_HDR);
-
         headers.clear();
-
-        if (version != null)
-        {
-            headers.put(VERSION_HDR, version);
-        }
     }
 
     /**
@@ -343,9 +332,9 @@ public class ArmoredOutputStream
                 out.write(nl.charAt(i));
             }
 
-            if (headers.containsKey(VERSION_HDR))
-            {
-                writeHeaderEntry(VERSION_HDR, (String)headers.get(VERSION_HDR));
+            // write version header first if existing
+            if (headers.containsKey(VERSION_HDR)) {
+                writeHeaderEntry(VERSION_HDR, (String) headers.get("Version"));
             }
 
             Enumeration e = headers.keys();

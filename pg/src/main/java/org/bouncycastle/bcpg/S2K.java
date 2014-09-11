@@ -73,6 +73,15 @@ public class S2K
     }
 
     /**
+     * Constructs a specifier for a GNU Dummy S2K generation, ie. no saved secret key.
+     */
+    S2K() {
+        type = GNU_DUMMY_S2K;
+        algorithm = HashAlgorithmTags.SHA1; // (unused) s2k hash algorithm. just use what gpg uses
+        protectionMode = GNU_PROTECTION_MODE_NO_PRIVATE_KEY;
+    }
+
+    /**
      * Constructs a specifier for a {@link #SIMPLE simple} S2K generation.
      *
      * @param algorithm the {@link HashAlgorithmTags digest algorithm} to use.
@@ -184,4 +193,14 @@ public class S2K
             out.write(protectionMode);
         }
     }
+
+    /**
+     * Constructs a new gnu dummy key with no key data, and the specified protection mode.
+     */
+    public static S2K createDummyS2K(int protectionMode) {
+        S2K s2k = new S2K();
+        s2k.protectionMode = protectionMode;
+        return s2k;
+    }
+
 }

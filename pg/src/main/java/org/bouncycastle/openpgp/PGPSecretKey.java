@@ -793,6 +793,61 @@ public class PGPSecretKey
     }
 
     /**
+     * Create a new stripped secret key from a given public key, using the GNU DUMMY s2k type
+     * with an empty secret body.
+     *
+     * @param publicKey a public key object
+     * @return a stripped secret key object
+     */
+    public static PGPSecretKey constructGnuDummyKey(PGPPublicKey publicKey) {
+        SecretKeyPacket secret;
+        if (publicKey.isMasterKey()) {
+            secret = new SecretKeyPacket(
+                    publicKey.getPublicKeyPacket(),
+                    // this is a dummy anyways, use CAST5 for compatibility (it's what gpg does)
+                    SymmetricKeyAlgorithmTags.CAST5,
+                    S2K.createDummyS2K(S2K.GNU_PROTECTION_MODE_NO_PRIVATE_KEY), null, null);
+        } else {
+            secret = new SecretSubkeyPacket(
+                    publicKey.getPublicKeyPacket(),
+                    // this is a dummy anyways, use CAST5 for compatibility (it's what gpg does)
+                    SymmetricKeyAlgorithmTags.CAST5,
+                    S2K.createDummyS2K(S2K.GNU_PROTECTION_MODE_NO_PRIVATE_KEY), null, null);
+        }
+        return new PGPSecretKey(secret, publicKey);
+    }
+
+    /**
+     * Create a new stripped secret key from a given public key, using the GNU DUMMY
+     * divert-to-card s2k type, giving a serial number as iv.
+     *
+     * @param publicKey a public key object
+     * @param serial the serial number of the card, written as iv in the packet
+     * @return a stripped secret key object
+     */
+    public static PGPSecretKey constructGnuDummyKey(PGPPublicKey publicKey, byte[] serial) {
+        SecretKeyPacket secret;
+
+        byte[] iv = new byte[16];
+        System.arraycopy(serial, 0, iv, 0, serial.length > 16 ? 16 : serial.length);
+
+        if (publicKey.isMasterKey()) {
+            secret = new SecretKeyPacket(
+                    publicKey.getPublicKeyPacket(),
+                    SymmetricKeyAlgorithmTags.NULL,
+                    SecretKeyPacket.USAGE_CHECKSUM,
+                    S2K.createDummyS2K(S2K.GNU_PROTECTION_MODE_DIVERT_TO_CARD), iv, null);
+        } else {
+            secret = new SecretSubkeyPacket(
+                    publicKey.getPublicKeyPacket(),
+                    SymmetricKeyAlgorithmTags.NULL,
+                    SecretKeyPacket.USAGE_CHECKSUM,
+                    S2K.createDummyS2K(S2K.GNU_PROTECTION_MODE_DIVERT_TO_CARD), iv, null);
+        }
+        return new PGPSecretKey(secret, publicKey);
+    }
+
+    /**
      * Parse a secret key from one of the GPG S expression keys associating it with the passed in public key.
      *
      * @return a secret key object.

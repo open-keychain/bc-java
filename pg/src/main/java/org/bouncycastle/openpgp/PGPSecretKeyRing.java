@@ -526,4 +526,21 @@ public class PGPSecretKeyRing
         
         return new PGPSecretKeyRing(keys, secRing.extraPubKeys);
     }
+
+    public static PGPSecretKeyRing constructDummyFromPublic(PGPPublicKeyRing pubRing, int protectionMode) {
+
+        List       keys = new ArrayList();
+
+        for (int i = 0; i < pubRing.keys.size();i++)
+        {
+            PGPPublicKey   pubKey = (PGPPublicKey)pubRing.keys.get(i);
+
+            PGPSecretKey   secKey = PGPSecretKey.constructGnuDummyKey(pubKey);
+
+            keys.add(secKey);
+        }
+
+        return new PGPSecretKeyRing(keys);
+    }
+
 }

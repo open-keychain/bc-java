@@ -120,7 +120,7 @@ public class SignaturePacket
         }
         else
         {
-            throw new RuntimeException("unsupported version: " + version);
+            throw new IOException("unsupported version: " + version);
         }
         
         fingerPrint = new byte[2];

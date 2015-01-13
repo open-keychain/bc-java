@@ -11,7 +11,7 @@ public class PGPUserAttributeSubpacketVector
 {
     UserAttributeSubpacket[]        packets;
     
-    PGPUserAttributeSubpacketVector(
+    public PGPUserAttributeSubpacketVector(
         UserAttributeSubpacket[]    packets)
     {
         this.packets = packets;
@@ -43,7 +43,7 @@ public class PGPUserAttributeSubpacketVector
         return (ImageAttribute)p;
     }
     
-    UserAttributeSubpacket[] toSubpacketArray()
+    public UserAttributeSubpacket[] toSubpacketArray()
     {
         return packets;
     }

@@ -14,7 +14,7 @@ public class UserAttributeSubpacket
     private boolean    forceLongLength;   // we preserve this as not everyone encodes length properly.
     protected byte[]   data;
     
-    protected UserAttributeSubpacket(
+    public UserAttributeSubpacket(
         int            type,
         byte[]         data)
     {    

@@ -50,7 +50,16 @@ public class SecretKeyPacket
             encAlgorithm = s2kUsage;
         }
 
-        if (!(s2k != null && s2k.getType() == S2K.GNU_DUMMY_S2K && s2k.getProtectionMode() == 0x01))
+        // For the GNU divert-to-card type, the serial number of the card is stored in the IV
+        if (s2k != null && s2k.getType() == S2K.GNU_DUMMY_S2K && s2k.getProtectionMode() == 0x02)
+        {
+            int len = in.read();
+
+            iv = new byte[len];
+
+            in.readFully(iv);
+        }
+        else if (!(s2k != null && s2k.getType() == S2K.GNU_DUMMY_S2K && s2k.getProtectionMode() == 0x01))
         {
             if (s2kUsage != 0) 
             {
@@ -162,9 +171,16 @@ public class SecretKeyPacket
             pOut.write(encAlgorithm);
             pOut.writeObject(s2k);
         }
-        
+
         if (iv != null)
         {
+            // If this is a divert-to-card, write the length of the serial number at the start of the iv
+            if (s2k != null && s2k.getType() == S2K.GNU_DUMMY_S2K
+                    && s2k.getProtectionMode() == S2K.GNU_PROTECTION_MODE_DIVERT_TO_CARD)
+            {
+                pOut.write(iv.length);
+            }
+
             pOut.write(iv);
         }
         

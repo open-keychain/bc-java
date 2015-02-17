@@ -72,6 +72,15 @@ public class PGPLiteralData
     }
 
     /**
+     * Return the length of the contained literal data, if available. Returns null if the
+     * length is not available, which is the case for partial data packets.
+     */
+    public Long getDataLengthIfAvailable()
+    {
+        return data.getDataLengthIfAvailable();
+    }
+
+    /**
      * Return the raw input stream for the data packet.
      */
     public InputStream getInputStream()

@@ -275,6 +275,19 @@ public class BCPGInputStream
     }
 
     /**
+     * Return the length of the contained data packet, if available. Returns null if the
+     * length is not available, which is the case for a BCPGInputStream which is not inside
+     * a parsed Packet, and partial data packets.
+     */
+    public Long getBodyLengthIfAvailable() {
+        if (in instanceof PartialInputStream) {
+            long length = ((PartialInputStream) in).getBodyLength();
+            return length == 0 ? null : length;
+        }
+        return null;
+    }
+
+    /**
      * a stream that overlays our input stream, allowing the user to only read a segment of it.
      *
      * NB: dataLength will be negative if the segment length is in the upper range above 2**31.
@@ -284,6 +297,7 @@ public class BCPGInputStream
     {
         private BCPGInputStream     in;
         private boolean             partial;
+        private long                totalDataLength;
         private int                 dataLength;
 
         PartialInputStream(
@@ -293,6 +307,8 @@ public class BCPGInputStream
         {
             this.in = in;
             this.partial = partial;
+            // widen negative integer range to long
+            this.totalDataLength = dataLength & 0x00000000ffffffffL;
             this.dataLength = dataLength;
         }
 
@@ -313,6 +329,10 @@ public class BCPGInputStream
                 }
                 return dataLength;
             }
+        }
+
+        private long getBodyLength() {
+            return partial ? 0L : totalDataLength;
         }
 
         private int loadDataLength()

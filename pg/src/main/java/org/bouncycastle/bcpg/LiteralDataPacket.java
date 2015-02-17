@@ -14,6 +14,7 @@ public class LiteralDataPacket
     int     format;
     byte[]  fileName;
     long    modDate;
+    Long    literalLength;
 
     LiteralDataPacket(
         BCPGInputStream    in)
@@ -39,6 +40,17 @@ public class LiteralDataPacket
         if (modDate < 0)
         {
             throw new IOException("literal data truncated in header");
+        }
+
+        literalLength = in.getBodyLengthIfAvailable();
+        if (literalLength != null) {
+            // length of literal data is length of the packet...
+            // ...minus 1 byte format, 1 byte filename length
+            literalLength -= 2;
+            // ...minus length of the filename
+            literalLength -= l;
+            // ...minus two bytes timestamp
+            literalLength -= 4;
         }
     }
 
@@ -72,5 +84,13 @@ public class LiteralDataPacket
     public byte[] getRawFileName()
     {
         return Arrays.clone(fileName);
+    }
+
+    /**
+     * Return the length of the contained literal data, if available. Returns null if the
+     * length is not available, which is the case for partial data packets.
+     */
+    public Long getDataLengthIfAvailable() {
+        return literalLength;
     }
 }

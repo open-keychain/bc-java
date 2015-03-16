@@ -50,7 +50,12 @@ public class BcPublicKeyKeyEncryptionMethodGenerator
      */
     public BcPublicKeyKeyEncryptionMethodGenerator(PGPPublicKey key)
     {
-        super(key);
+        this(key, false);
+    }
+
+    public BcPublicKeyKeyEncryptionMethodGenerator(PGPPublicKey key, boolean hiddenRecipients)
+    {
+        super(key, hiddenRecipients);
     }
 
     /**

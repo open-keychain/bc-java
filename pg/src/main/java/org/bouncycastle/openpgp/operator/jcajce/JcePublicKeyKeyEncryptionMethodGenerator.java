@@ -51,7 +51,12 @@ public class JcePublicKeyKeyEncryptionMethodGenerator
      */
     public JcePublicKeyKeyEncryptionMethodGenerator(PGPPublicKey key)
     {
-        super(key);
+        this(key, false);
+    }
+
+    public JcePublicKeyKeyEncryptionMethodGenerator(PGPPublicKey key, boolean hiddenRecipients)
+    {
+        super(key, hiddenRecipients);
     }
 
     public JcePublicKeyKeyEncryptionMethodGenerator setProvider(Provider provider)

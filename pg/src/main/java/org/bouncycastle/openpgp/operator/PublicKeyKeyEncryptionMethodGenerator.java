@@ -13,11 +13,19 @@ public abstract class PublicKeyKeyEncryptionMethodGenerator
     extends PGPKeyEncryptionMethodGenerator
 {
     private PGPPublicKey pubKey;
+    private boolean hiddenRecipients;
 
     protected PublicKeyKeyEncryptionMethodGenerator(
-        PGPPublicKey pubKey)
+            PGPPublicKey pubKey)
+    {
+        this(pubKey, false);
+    }
+
+    protected PublicKeyKeyEncryptionMethodGenerator(
+        PGPPublicKey pubKey, boolean hiddenRecipients)
     {
         this.pubKey = pubKey;
+        this.hiddenRecipients = hiddenRecipients;
 
         switch (pubKey.getAlgorithm())
         {
@@ -94,7 +102,8 @@ public abstract class PublicKeyKeyEncryptionMethodGenerator
     public ContainedPacket generate(int encAlgorithm, byte[] sessionInfo)
         throws PGPException
     {
-        return new PublicKeyEncSessionPacket(pubKey.getKeyID(), pubKey.getAlgorithm(), processSessionInfo(encryptSessionInfo(pubKey, sessionInfo)));
+        long keyId = hiddenRecipients ? 0L : pubKey.getKeyID();
+        return new PublicKeyEncSessionPacket(keyId, pubKey.getAlgorithm(), processSessionInfo(encryptSessionInfo(pubKey, sessionInfo)));
     }
 
     abstract protected byte[] encryptSessionInfo(PGPPublicKey pubKey, byte[] sessionInfo)

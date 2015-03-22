@@ -492,7 +492,11 @@ public class PGPSecretKeyRing
         return new PGPSecretKeyRing(keys, secRing.extraPubKeys);
     }
 
-    public static PGPSecretKeyRing constructDummyFromPublic(PGPPublicKeyRing pubRing, int protectionMode) {
+    public static PGPSecretKeyRing constructDummyFromPublic(PGPPublicKeyRing pubRing) {
+        return constructDummyFromPublic(pubRing, null);
+    }
+
+    public static PGPSecretKeyRing constructDummyFromPublic(PGPPublicKeyRing pubRing, byte[] cardSerial) {
 
         List       keys = new ArrayList();
 
@@ -500,7 +504,13 @@ public class PGPSecretKeyRing
         {
             PGPPublicKey   pubKey = (PGPPublicKey)pubRing.keys.get(i);
 
-            PGPSecretKey   secKey = PGPSecretKey.constructGnuDummyKey(pubKey);
+            PGPSecretKey   secKey;
+
+            if (cardSerial != null) {
+                secKey = PGPSecretKey.constructGnuDummyKey(pubKey, cardSerial);
+            } else {
+                secKey = PGPSecretKey.constructGnuDummyKey(pubKey);
+            }
 
             keys.add(secKey);
         }

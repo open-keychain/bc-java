@@ -364,6 +364,15 @@ public class PGPSecretKey
     }
     
     /**
+     * Return the IV this secret key is encrypted with.
+     *
+     * @return the IV of this key.
+     */
+    public byte[] getIV() {
+        return secret.getIV();
+    }
+
+    /**
      * Return any user attribute vectors associated with the key.
      * 
      * @return an iterator of PGPUserAttributeSubpacketVector.

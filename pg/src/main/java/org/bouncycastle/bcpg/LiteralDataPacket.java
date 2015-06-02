@@ -77,11 +77,4 @@ public class LiteralDataPacket
         return Arrays.clone(fileName);
     }
 
-    /**
-     * Return the length of the contained literal data, if available. Returns null if the
-     * length is not available, which is the case for partial data packets.
-     */
-    public Long getDataLengthIfAvailable() {
-        return literalLength;
-    }
 }

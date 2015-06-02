@@ -73,11 +73,22 @@ public class PGPLiteralData
 
     /**
      * Return the length of the contained literal data, if available. Returns null if the
-     * length is not available, which is the case for partial data packets.
+     * length is not available, which is the case for not partial data packets if not yet
+     * fully read.
      */
     public Long getDataLengthIfAvailable()
     {
-        return data.getDataLengthIfAvailable();
+        return data.getInputStream().getBodyLengthIfAvailable();
+    }
+
+    /**
+     * Return the length of the contained literal data, if available. This method skips over
+     * the entire content of the packet to find the length if necessary, and should be used
+     * only if the content is not required. Returns null if the length is not available.
+     */
+    public Long findDataLength()
+    {
+        return data.getInputStream().findDataLength();
     }
 
     /**

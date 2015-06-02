@@ -43,6 +43,11 @@ public class PGPPublicKeyEncryptedData
                     && (sessionInfo[sessionInfo.length - 1] == (byte)(check));
     }
 
+    public byte[][] getSessionKey()
+    {
+        return keyData.getEncSessionKey();
+    }
+
     /**
      * Return the keyID for the key used to encrypt the data.
      *

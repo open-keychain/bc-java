@@ -209,6 +209,11 @@ public class PGPSignature
     public boolean verify()
         throws PGPException
     {
+        if (!sigPck.isValid())
+        {
+            return false;
+        }
+
         try
         {
             sigOut.write(this.getSignatureTrailer());

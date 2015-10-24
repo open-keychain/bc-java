@@ -16,7 +16,7 @@ import org.bouncycastle.openpgp.operator.PGPContentVerifierBuilderProvider;
  */
 public class PGPOnePassSignature
 {
-    private OnePassSignaturePacket sigPack;
+    public OnePassSignaturePacket sigPack;
     private int                    signatureType;
 
     private PGPContentVerifier verifier;

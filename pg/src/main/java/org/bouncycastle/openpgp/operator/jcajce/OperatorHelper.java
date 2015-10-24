@@ -194,9 +194,23 @@ class OperatorHelper
         }
     }
 
+    public Signature createSignature(int keyAlgorithm)
+            throws PGPException
+    {
+        String encAlg = getAlgorithmName(keyAlgorithm);
+
+        return createSignature("NONE" + "with" + encAlg);
+    }
+
     public Signature createSignature(int keyAlgorithm, int hashAlgorithm)
         throws PGPException
     {
+        String encAlg = getAlgorithmName(keyAlgorithm);
+
+        return createSignature(PGPUtil.getDigestName(hashAlgorithm) + "with" + encAlg);
+    }
+
+    private String getAlgorithmName(int keyAlgorithm) throws PGPException {
         String     encAlg;
 
         switch (keyAlgorithm)
@@ -218,8 +232,7 @@ class OperatorHelper
         default:
             throw new PGPException("unknown algorithm tag in signature:" + keyAlgorithm);
         }
-
-        return createSignature(PGPUtil.getDigestName(hashAlgorithm) + "with" + encAlg);
+        return encAlg;
     }
 
     public AlgorithmParameters createAlgorithmParameters(String algorithm)

@@ -20,9 +20,9 @@ import org.bouncycastle.util.BigIntegers;
 /**
  * Basic utility class
  */
-class PGPUtil
+public class PGPUtil
 {
-    static String getDigestName(
+    public static String getDigestName(
         int        hashAlgorithm)
         throws PGPException
     {

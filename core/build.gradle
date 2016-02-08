@@ -2,7 +2,6 @@ apply plugin: 'java'
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile project(':openkeychain:extern:bouncycastle:core')
 }
 
 sourceCompatibility = 1.6

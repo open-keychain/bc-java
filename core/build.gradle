@@ -2,8 +2,6 @@ apply plugin: 'java'
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile project(':extern:bouncycastle:core')
-    compile project(':extern:bouncycastle:prov')
 }
 
 sourceCompatibility = 1.6

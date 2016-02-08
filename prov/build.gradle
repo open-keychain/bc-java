@@ -1,10 +1,10 @@
+apply plugin: 'java'
+
 dependencies {
-    compile project(':core')
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile project(':extern:bouncycastle:core')
 }
 
-cobertura {
-   coverageDirs = [
-       "${rootProject.projectDir}/core/build/classes/main",
-       "${rootProject.projectDir}/prov/build/classes/main"
-  ] 
-}
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+version = '1.56.0.0'

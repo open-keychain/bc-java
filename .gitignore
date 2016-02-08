@@ -6,6 +6,8 @@
 *.gen
 *.swp
 
+*.iml
+
 bin/
 build/
 .settings/

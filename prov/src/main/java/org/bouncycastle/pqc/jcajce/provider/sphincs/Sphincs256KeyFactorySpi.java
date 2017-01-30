@@ -15,8 +15,6 @@ import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.jcajce.provider.util.AsymmetricKeyInfoConverter;
-import org.bouncycastle.pqc.jcajce.provider.rainbow.BCRainbowPrivateKey;
-import org.bouncycastle.pqc.jcajce.provider.rainbow.BCRainbowPublicKey;
 
 public class Sphincs256KeyFactorySpi
     extends KeyFactorySpi
@@ -66,30 +64,17 @@ public class Sphincs256KeyFactorySpi
         throw new InvalidKeySpecException("Unknown key specification: " + keySpec + ".");
     }
 
-    /**
-     * Converts a given key into a key specification, if possible. Currently the
-     * following specs are supported:
-     * <ul>
-     * <li>for RainbowPublicKey: X509EncodedKeySpec, RainbowPublicKeySpec
-     * <li>for RainbowPrivateKey: PKCS8EncodedKeySpec, RainbowPrivateKeySpec
-     * </ul>
-     *
-     * @param key     the key
-     * @param keySpec the key specification
-     * @return the specification of the CMSS key
-     * @throws InvalidKeySpecException if the key type or key specification is not supported.
-     */
     public final KeySpec engineGetKeySpec(Key key, Class keySpec)
         throws InvalidKeySpecException
     {
-        if (key instanceof BCRainbowPrivateKey)
+        if (key instanceof BCSphincs256PrivateKey)
         {
             if (PKCS8EncodedKeySpec.class.isAssignableFrom(keySpec))
             {
                 return new PKCS8EncodedKeySpec(key.getEncoded());
             }
         }
-        else if (key instanceof BCRainbowPublicKey)
+        else if (key instanceof BCSphincs256PublicKey)
         {
             if (X509EncodedKeySpec.class.isAssignableFrom(keySpec))
             {
@@ -109,7 +94,7 @@ public class Sphincs256KeyFactorySpi
     public final Key engineTranslateKey(Key key)
         throws InvalidKeyException
     {
-        if (key instanceof BCRainbowPrivateKey || key instanceof BCRainbowPublicKey)
+        if (key instanceof BCSphincs256PrivateKey || key instanceof BCSphincs256PublicKey)
         {
             return key;
         }

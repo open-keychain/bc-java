@@ -402,7 +402,7 @@ public class TlsDHUtils
         case CipherSuite.DRAFT_TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256:
 
         /*
-         * draft-zauner-tls-aes-ocb-03
+         * draft-zauner-tls-aes-ocb-04
          */
         case CipherSuite.DRAFT_TLS_DHE_RSA_WITH_AES_128_OCB:
         case CipherSuite.DRAFT_TLS_DHE_RSA_WITH_AES_256_OCB:
@@ -418,7 +418,8 @@ public class TlsDHUtils
 
     public static boolean areCompatibleParameters(DHParameters a, DHParameters b)
     {
-        return a.getP().equals(b.getP()) && a.getG().equals(b.getG());
+        return a.getP().equals(b.getP()) && a.getG().equals(b.getG())
+            && (a.getQ() == null || b.getQ() == null || a.getQ().equals(b.getQ()));
     }
 
     public static byte[] calculateDHBasicAgreement(DHPublicKeyParameters publicKey, DHPrivateKeyParameters privateKey)

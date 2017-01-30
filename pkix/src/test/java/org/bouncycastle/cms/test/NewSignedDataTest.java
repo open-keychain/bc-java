@@ -1196,7 +1196,8 @@ public class NewSignedDataTest
         //
         s = new CMSSignedData(msg, s.getEncoded());
 
-        Assert.assertNull(s.getSignerInfos().iterator().next().getSignedAttributes().get(CMSAttributes.cmsAlgorithmProtect));
+        // for JDK1.4 build
+        Assert.assertNull(((SignerInformation)s.getSignerInfos().iterator().next()).getSignedAttributes().get(CMSAttributes.cmsAlgorithmProtect));
 
         //
         // compute expected content digest
@@ -1383,16 +1384,18 @@ public class NewSignedDataTest
         rsaPSSTest("SHA384withRSAandMGF1");
     }
 
+    // RFC 5754 update
     public void testSHA224WithRSAEncapsulated()
         throws Exception
     {
-        encapsulatedTest(_signKP, _signCert, "SHA224withRSA");
+        encapsulatedTest(_signKP, _signCert, "SHA224withRSA", PKCSObjectIdentifiers.sha224WithRSAEncryption);
     }
-    
+
+    // RFC 5754 update
     public void testSHA256WithRSAEncapsulated()
         throws Exception
     {
-        encapsulatedTest(_signKP, _signCert, "SHA256withRSA");
+        encapsulatedTest(_signKP, _signCert, "SHA256withRSA", PKCSObjectIdentifiers.sha256WithRSAEncryption);
     }
 
     public void testRIPEMD128WithRSAEncapsulated()
@@ -1781,6 +1784,16 @@ public class NewSignedDataTest
         String          signatureAlgorithm)
         throws Exception
     {
+        encapsulatedTest(signaturePair, signatureCert, signatureAlgorithm, null);
+    }
+
+    private void encapsulatedTest(
+        KeyPair         signaturePair,
+        X509Certificate signatureCert,
+        String          signatureAlgorithm,
+        ASN1ObjectIdentifier sigAlgOid)
+        throws Exception
+    {
         List                certList = new ArrayList();
         List                crlList = new ArrayList();
         CMSTypedData        msg = new CMSProcessableByteArray("Hello World!".getBytes());
@@ -1826,6 +1839,12 @@ public class NewSignedDataTest
     
             Iterator        certIt = certCollection.iterator();
             X509CertificateHolder cert = (X509CertificateHolder)certIt.next();
+
+            if (sigAlgOid != null)
+            {
+                assertEquals(sigAlgOid.getId(), signer.getEncryptionAlgOID());
+                assertEquals(DERNull.INSTANCE, ASN1Primitive.fromByteArray(signer.getEncryptionAlgParams()));
+            }
 
             digestAlgorithms.remove(signer.getDigestAlgorithmID());
 

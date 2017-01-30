@@ -43,6 +43,7 @@ import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.DERNull;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.bc.BCObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.RSAPublicKey;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -93,6 +94,8 @@ import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import org.bouncycastle.operator.bc.BcRSAContentVerifierProviderBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
+import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
+import org.bouncycastle.pqc.jcajce.spec.SPHINCS256KeyGenParameterSpec;
 import org.bouncycastle.util.Strings;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
@@ -1156,6 +1159,31 @@ public class CertTest
             "D2a8yuoaYDAIBgYqhQMCAgMDQQA8L8kJRLcnqeyn1en7U23Sw6pkfEQu3u0xFkVP" +
             "vFQ/3cHeF26NG+xxtZPz3TaTVXdoiYkXYiD02rEx1bUcM97i");
 
+    private final byte[] sha3Cert = Base64.decode(
+        "MIID8jCCAqagAwIBAgIICfBykpzUT+IwQQYJKoZIhvcNAQEKMDSgDzANBglg"
+      + "hkgBZQMEAggFAKEcMBoGCSqGSIb3DQEBCDANBglghkgBZQMEAggFAKIDAgEg"
+      + "MCwxCzAJBgNVBAYTAkRFMQ4wDAYDVQQKDAV4aXBraTENMAsGA1UEAwwEUkNB"
+      + "MTAeFw0xNjEwMTgxODQzMjhaFw0yNjEwMTgxODQzMjdaMCwxCzAJBgNVBAYT"
+      + "AkRFMQ4wDAYDVQQKDAV4aXBraTENMAsGA1UEAwwEUkNBMTCCASIwDQYJKoZI"
+      + "hvcNAQEBBQADggEPADCCAQoCggEBAK/pzm1RASDYDg3WBXyW3AnAESRF/+li"
+      + "qh0X8Y89m+JFJeOi1u89bOSPjsFfo5SbRSElyRXedh/d37KrONg39NEKIcC6"
+      + "iSuiNfXu0D6nlSzhrQzmvHIyfLnm8N2JtHDr/hZIprOcFO+lZTJIjjrOVe9y"
+      + "lFGgGDd/uQCEJk1Cmi5Ivi9odeiN3z8lVlGNeN9/Q5n47ijuYWr73z/FyyAK"
+      + "gAG3B5nhAYWs4ft0O3JWBc0QJZzShqsRjm3SNhAqMDnRoTq04PFgbDYizV8T"
+      + "ydz2kCne79TDwsY4MckYYaGoNcPoQXVS+9YjQjI72ktSlxiJxodL9WMFl+ED"
+      + "5ZLBRIRsDJECAwEAAaOBrzCBrDAPBgNVHRMBAf8EBTADAQH/MGoGCCsGAQUF"
+      + "BwEBBF4wXDAnBggrBgEFBQcwAoYbaHR0cDovL2V4YW1wbGUub3JnL1JDQTEu"
+      + "ZGVyMDEGCCsGAQUFBzABhiVodHRwOi8vbG9jYWxob3N0OjgwODAvb2NzcC9y"
+      + "ZXNwb25kZXIxMB0GA1UdDgQWBBRTXKdJI3P1kveLlRxPvzUfDnC8JjAOBgNV"
+      + "HQ8BAf8EBAMCAQYwQQYJKoZIhvcNAQEKMDSgDzANBglghkgBZQMEAggFAKEc"
+      + "MBoGCSqGSIb3DQEBCDANBglghkgBZQMEAggFAKIDAgEgA4IBAQCpSVaqOMKz"
+      + "6NT0+mivEhig9cKsglFhnWStKUtdhrG4HqOf6Qjny9Xvq1nE7x8e2xAoaZLd"
+      + "GMsNAWFCbwzoJrDL7Ct6itQ5ymxi2haN+Urc5UWJd/8C0R74OdP1uPCiljZ9"
+      + "DdjbNk/hS36UPYi+FT5r6Jr/1X/EqgL1MOUsSTEXdYlZH662zjbV4D9QSBzx"
+      + "ul9bYyWrqSZFKvKef4UQwUy8yXtChwiwp50mfJQBdVcIqPBYCgmLYclamjQx"
+      + "hlkk5VbZb4D/Cv4HxrdxpJfy/ewUZR7uHlzDx0/m4qjzNzWgq+sh3ZbveDrV"
+      + "wd/FDMFOxSIno9qgHtdfgXRwZJ+l07fF");
+
     private PublicKey dudPublicKey = new PublicKey()
     {
         public String getAlgorithm()
@@ -1283,7 +1311,9 @@ public class CertTest
 
             PublicKey k = cert.getPublicKey();
 
-            cert.verify(k);
+            X509CertificateHolder certHldr = new X509CertificateHolder(bytes);
+
+            certHldr.isSignatureValid(new JcaContentVerifierProviderBuilder().setProvider("BC").build(k));
             // System.out.println(cert);
         }
         catch (Exception e)
@@ -2384,20 +2414,85 @@ public class CertTest
         {
             // expected
         }
+    }
 
-//        try
-//        {
-//            certGen.setPublicKey(dudPublicKey);
-//
-//            certGen.generate(privKey, BC);
-//
-//            fail("key without encoding not detected in v3");
-//        }
-//        catch (IllegalArgumentException e)
-//        {
-//            // expected
-//        }
+    public void checkCreation6()
+        throws Exception
+    {
+        if (Security.getProvider("BCPQC") == null)
+        {
+            Security.addProvider(new BouncyCastlePQCProvider());
+        }
 
+        KeyPairGenerator kpGen = KeyPairGenerator.getInstance("SPHINCS256", "BCPQC");
+
+        kpGen.initialize(new SPHINCS256KeyGenParameterSpec(), new SecureRandom());
+
+        KeyPair kp = kpGen.generateKeyPair();
+
+        PrivateKey privKey = kp.getPrivate();
+        PublicKey pubKey = kp.getPublic();
+
+        //
+        // distinguished name table.
+        //
+        X500NameBuilder builder = createStdBuilder();
+
+        //
+        // create base certificate - version 3
+        //
+        ContentSigner sigGen = new JcaContentSignerBuilder("SHA512withSPHINCS256").setProvider("BCPQC").build(privKey);
+        X509v3CertificateBuilder certGen = new JcaX509v3CertificateBuilder(builder.build(), BigInteger.valueOf(1), new Date(System.currentTimeMillis() - 50000), new Date(System.currentTimeMillis() + 50000), builder.build(), pubKey)
+            .addExtension(new ASN1ObjectIdentifier("2.5.29.15"), true,
+                new X509KeyUsage(X509KeyUsage.encipherOnly))
+            .addExtension(new ASN1ObjectIdentifier("2.5.29.37"), true,
+                new DERSequence(KeyPurposeId.anyExtendedKeyUsage))
+            .addExtension(new ASN1ObjectIdentifier("2.5.29.17"), true,
+                new GeneralNames(new GeneralName(GeneralName.rfc822Name, "test@test.test")));
+
+        X509Certificate baseCert = new JcaX509CertificateConverter().setProvider(BC).getCertificate(certGen.build(sigGen));
+
+        isTrue("oid wrong", BCObjectIdentifiers.sphincs256_with_SHA512.getId().equals(baseCert.getSigAlgOID()));
+        isTrue("params wrong", null == baseCert.getSigAlgParams());
+
+        //
+        // copy certificate
+        //
+
+        certGen = new JcaX509v3CertificateBuilder(builder.build(), BigInteger.valueOf(1), new Date(System.currentTimeMillis() - 50000), new Date(System.currentTimeMillis() + 50000), builder.build(), pubKey)
+            .copyAndAddExtension(new ASN1ObjectIdentifier("2.5.29.15"), true, baseCert)
+            .copyAndAddExtension(new ASN1ObjectIdentifier("2.5.29.37"), false, baseCert);
+
+        X509Certificate cert = new JcaX509CertificateConverter().setProvider(BC).getCertificate(certGen.build(sigGen));
+
+        cert.checkValidity(new Date());
+
+        cert.verify(pubKey, "BCPQC");
+
+        if (!areEqual(baseCert.getExtensionValue("2.5.29.15"), cert.getExtensionValue("2.5.29.15")))
+        {
+            fail("2.5.29.15 differs");
+        }
+
+        if (!areEqual(baseCert.getExtensionValue("2.5.29.37"), cert.getExtensionValue("2.5.29.37")))
+        {
+            fail("2.5.29.37 differs");
+        }
+
+        //
+        // exception test
+        //
+
+        try
+        {
+            certGen.copyAndAddExtension(new ASN1ObjectIdentifier("2.5.99.99"), true, new JcaX509CertificateHolder(baseCert));
+
+            fail("exception not thrown on dud extension copy");
+        }
+        catch (NullPointerException e)
+        {
+            // expected
+        }
     }
 
     private void testForgedSignature()
@@ -2977,7 +3072,8 @@ public class CertTest
         checkSelfSignedCertificate(15, gost34102001base);
         checkSelfSignedCertificate(16, gost341094A);
         checkSelfSignedCertificate(17, gost341094B);
-        checkSelfSignedCertificate(17, gost34102001A);
+        checkSelfSignedCertificate(18, gost34102001A);
+        checkSelfSignedCertificate(19, sha3Cert);
 
         checkCRL(1, crl1);
 
@@ -2986,6 +3082,8 @@ public class CertTest
         checkCreation3();
         checkCreation4();
         checkCreation5();
+
+        checkCreation6();
 
         createECCert("SHA1withECDSA", X9ObjectIdentifiers.ecdsa_with_SHA1);
         createECCert("SHA224withECDSA", X9ObjectIdentifiers.ecdsa_with_SHA224);

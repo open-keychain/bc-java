@@ -292,7 +292,7 @@ public class TlsECCUtils
         case CipherSuite.DRAFT_TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256:
 
         /*
-         * draft-zauner-tls-aes-ocb-03
+         * draft-zauner-tls-aes-ocb-04
          */
         case CipherSuite.DRAFT_TLS_ECDHE_RSA_WITH_AES_128_OCB:
         case CipherSuite.DRAFT_TLS_ECDHE_RSA_WITH_AES_256_OCB:
@@ -310,9 +310,7 @@ public class TlsECCUtils
 
     public static boolean areOnSameCurve(ECDomainParameters a, ECDomainParameters b)
     {
-        // TODO Move to ECDomainParameters.equals() or other utility method?
-        return a.getCurve().equals(b.getCurve()) && a.getG().equals(b.getG()) && a.getN().equals(b.getN())
-            && a.getH().equals(b.getH());
+        return a != null && a.equals(b);
     }
 
     public static boolean isSupportedNamedCurve(int namedCurve)

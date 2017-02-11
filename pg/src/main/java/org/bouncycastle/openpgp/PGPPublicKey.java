@@ -1,14 +1,5 @@
 package org.bouncycastle.openpgp;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import org.bouncycastle.asn1.cryptlib.CryptlibObjectIdentifiers;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
@@ -17,6 +8,7 @@ import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.bcpg.ContainedPacket;
 import org.bouncycastle.bcpg.DSAPublicBCPGKey;
 import org.bouncycastle.bcpg.ECPublicBCPGKey;
+import org.bouncycastle.bcpg.EdDSAPublicBCPGKey;
 import org.bouncycastle.bcpg.ElGamalPublicBCPGKey;
 import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 import org.bouncycastle.bcpg.PublicKeyPacket;
@@ -27,6 +19,15 @@ import org.bouncycastle.bcpg.UserAttributePacket;
 import org.bouncycastle.bcpg.UserIDPacket;
 import org.bouncycastle.openpgp.operator.KeyFingerPrintCalculator;
 import org.bouncycastle.util.Arrays;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * general class to handle a PGP public key object.
@@ -88,15 +89,24 @@ public class PGPPublicKey
             }
             else if (key instanceof ECPublicBCPGKey)
             {
-                X9ECParameters ecParameters = ECNamedCurveTable.getByOID(((ECPublicBCPGKey)key).getCurveOID());
-
-                if (CryptlibObjectIdentifiers.curvey25519.equals(((ECPublicBCPGKey) key).getCurveOID()))
+                if (key instanceof EdDSAPublicBCPGKey || CryptlibObjectIdentifiers.curvey25519.equals(((ECPublicBCPGKey) key).getCurveOID()))
                 {
-                    this.keyStrength = ecParameters.getCurve().getFieldSize();
+                    // EdDSANamedCurveSpec eddsaSpec =
+                    // EdDSANamedCurveTable.getByName("ed25519");
+                    this.keyStrength = 255; // eddsaSpec.getCurve().getField().getb();
                 }
                 else
                 {
-                    this.keyStrength = -1; // unknown
+                    X9ECParameters ecParameters = ECNamedCurveTable.getByOID(((ECPublicBCPGKey) key).getCurveOID());
+
+                    if (ecParameters != null)
+                    {
+                        this.keyStrength = ecParameters.getCurve().getFieldSize();
+                    }
+                    else
+                    {
+                        this.keyStrength = -1; // unknown
+                    }
                 }
             }
         }

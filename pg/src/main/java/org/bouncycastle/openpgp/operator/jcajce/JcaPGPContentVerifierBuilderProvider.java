@@ -1,13 +1,6 @@
 package org.bouncycastle.openpgp.operator.jcajce;
 
-import java.io.OutputStream;
-import java.security.InvalidKeyException;
-import java.security.Provider;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.interfaces.RSAPublicKey;
-
+import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 import org.bouncycastle.jcajce.io.OutputStreamFactory;
 import org.bouncycastle.jcajce.util.DefaultJcaJceHelper;
 import org.bouncycastle.jcajce.util.NamedJcaJceHelper;
@@ -18,6 +11,16 @@ import org.bouncycastle.openpgp.PGPRuntimeOperationException;
 import org.bouncycastle.openpgp.operator.PGPContentVerifier;
 import org.bouncycastle.openpgp.operator.PGPContentVerifierBuilder;
 import org.bouncycastle.openpgp.operator.PGPContentVerifierBuilderProvider;
+
+import java.io.OutputStream;
+import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.Provider;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.interfaces.RSAPublicKey;
 
 public class JcaPGPContentVerifierBuilderProvider
     implements PGPContentVerifierBuilderProvider
@@ -78,6 +81,20 @@ public class JcaPGPContentVerifierBuilderProvider
                 throw new PGPException("invalid key.", e);
             }
 
+            final MessageDigest prehash;
+            if (keyAlgorithm == PublicKeyAlgorithmTags.EDDSA)
+            {
+                try {
+                    prehash = helper.createDigest(hashAlgorithm);
+                } catch (GeneralSecurityException e) {
+                    throw new PGPException("Failed to create prehash digest", e);
+                }
+            }
+            else
+            {
+                prehash = null;
+            }
+
             return new PGPContentVerifier()
             {
                 public int getHashAlgorithm()
@@ -99,6 +116,11 @@ public class JcaPGPContentVerifierBuilderProvider
                 {
                     try
                     {
+                        if (prehash != null)
+                        {
+                            signature.update(prehash.digest());
+                        }
+
                         // an RSA PGP signature is stored as an MPI, this can occasionally result in a short
                         // signature if there is a leading zero.
                         if (jcaKey instanceof RSAPublicKey)
@@ -123,7 +145,14 @@ public class JcaPGPContentVerifierBuilderProvider
 
                 public OutputStream getOutputStream()
                 {
-                    return OutputStreamFactory.createStream(signature);
+                    if (prehash != null)
+                    {
+                        return OutputStreamFactory.createStream(prehash);
+                    }
+                    else
+                    {
+                        return OutputStreamFactory.createStream(signature);
+                    }
                 }
             };
         }

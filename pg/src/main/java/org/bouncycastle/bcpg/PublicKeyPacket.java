@@ -70,6 +70,9 @@ public class PublicKeyPacket
 
             break;
         }
+        case EDDSA:
+            key = new EdDSAPublicBCPGKey(in);
+            break;
         default:
             key = new OpaquePublicBCPGKey(in);
             break;

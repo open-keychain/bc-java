@@ -51,7 +51,8 @@ public class PublicKeyPacket
             key = new ECDSAPublicBCPGKey(in);
             break;
         default:
-            throw new IOException("unknown PGP public key algorithm encountered");
+            key = new OpaquePublicBCPGKey(in);
+            break;
         }
     }
     

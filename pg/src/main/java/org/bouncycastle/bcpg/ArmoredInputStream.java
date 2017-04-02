@@ -203,6 +203,11 @@ public class ArmoredInputStream
             
             while ((c = in.read()) >= 0)
             {
+                // GPG4USB emits CRCRLF line endings - just ignore subsequent '\r' characters
+                if (last == '\r' && c == '\r')
+                {
+                    continue;
+                }
                 if (last == '\r' && c == '\n')
                 {
                     crLf = true;

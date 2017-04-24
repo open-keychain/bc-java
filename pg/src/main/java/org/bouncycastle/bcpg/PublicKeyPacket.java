@@ -4,6 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
+import org.bouncycastle.asn1.x9.ECNamedCurveTable;
+import org.bouncycastle.asn1.x9.X9ECParameters;
+
+
 /**
  * basic packet for a PGP public key
  */
@@ -44,12 +48,28 @@ public class PublicKeyPacket
         case ELGAMAL_GENERAL:
             key = new ElGamalPublicBCPGKey(in);
             break;
-        case ECDH:
-            key = new ECDHPublicBCPGKey(in);
+        case ECDH: {
+            ECDHPublicBCPGKey candidateKey = new ECDHPublicBCPGKey(in);
+            X9ECParameters params = ECNamedCurveTable.getByOID(candidateKey.getCurveOID());
+            if (params != null) {
+                key = candidateKey;
+            } else {
+                key = new OpaquePublicBCPGKey(in);
+            }
+
             break;
-        case ECDSA:
-            key = new ECDSAPublicBCPGKey(in);
+        }
+        case ECDSA: {
+            ECDSAPublicBCPGKey candidateKey = new ECDSAPublicBCPGKey(in);
+            X9ECParameters params = ECNamedCurveTable.getByOID(candidateKey.getCurveOID());
+            if (params != null) {
+                key = candidateKey;
+            } else {
+                key = new OpaquePublicBCPGKey(in);
+            }
+
             break;
+        }
         default:
             key = new OpaquePublicBCPGKey(in);
             break;

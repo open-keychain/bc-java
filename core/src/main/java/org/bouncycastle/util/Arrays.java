@@ -821,6 +821,11 @@ public final class Arrays
     public static byte[] copyOfRange(byte[] data, int from, int to)
     {
         int newLength = getLength(from, to);
+        if(newLength < 0) {
+            StringBuffer sb = new StringBuffer();
+            sb.append(from).append(" > ").append(to);
+            throw new IllegalArgumentException(sb.toString());
+        }
 
         byte[] tmp = new byte[newLength];
 

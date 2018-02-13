@@ -13,18 +13,24 @@ import java.util.Date;
 import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
 import javax.crypto.interfaces.DHKey;
-
-import org.bouncycastle.asn1.nist.NISTNamedCurves;
+import javax.crypto.spec.SecretKeySpec;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.bcpg.ECDHPublicBCPGKey;
+import org.bouncycastle.bcpg.ECSecretBCPGKey;
 import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 import org.bouncycastle.bcpg.PublicKeyPacket;
+import org.bouncycastle.crypto.DerivationFunction;
+import org.bouncycastle.crypto.agreement.kdf.ConcatenationKDFGenerator;
+import org.bouncycastle.crypto.ec.CustomNamedCurves;
+import org.bouncycastle.crypto.params.KDFParameters;
 import org.bouncycastle.jcajce.provider.asymmetric.util.ECUtil;
+import org.bouncycastle.jcajce.provider.util.DigestFactory;
 import org.bouncycastle.jcajce.spec.UserKeyingMaterialSpec;
 import org.bouncycastle.jcajce.util.DefaultJcaJceHelper;
 import org.bouncycastle.jcajce.util.NamedJcaJceHelper;
 import org.bouncycastle.jcajce.util.ProviderJcaJceHelper;
 import org.bouncycastle.math.ec.ECPoint;
+import org.bouncycastle.math.ec.rfc7748.X25519;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPrivateKey;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -32,6 +38,8 @@ import org.bouncycastle.openpgp.operator.PGPDataDecryptor;
 import org.bouncycastle.openpgp.operator.PGPPad;
 import org.bouncycastle.openpgp.operator.PublicKeyDataDecryptorFactory;
 import org.bouncycastle.openpgp.operator.RFC6637Utils;
+import org.bouncycastle.util.Arrays;
+
 
 public class JcePublicKeyDataDecryptorFactoryBuilder
 {
@@ -119,7 +127,16 @@ public class JcePublicKeyDataDecryptorFactoryBuilder
              {
                  if (keyAlgorithm == PublicKeyAlgorithmTags.ECDH)
                  {
-                     return decryptSessionData(keyConverter, privKey, secKeyData);
+                     PublicKeyPacket pubKeyData = privKey.getPublicKeyPacket();
+                     ECDHPublicBCPGKey ecKey = (ECDHPublicBCPGKey)pubKeyData.getKey();
+                     if (CustomNamedCurves.CV25519.equals(ecKey.getCurveOID()))
+                     {
+                         return x25519Decrypt(privKey, secKeyData);
+                     }
+                     else
+                     {
+                          return decryptSessionData(keyConverter, privKey, secKeyData);
+                     }
                  }
 
                  return decryptSessionData(keyAlgorithm, keyConverter.getPrivateKey(privKey), secKeyData);
@@ -131,6 +148,58 @@ public class JcePublicKeyDataDecryptorFactoryBuilder
                  return contentHelper.createDataDecryptor(withIntegrityPacket, encAlgorithm, key);
              }
          };
+    }
+
+    private byte[] x25519Decrypt(PGPPrivateKey privKey, byte[][] secKeyData)
+            throws PGPException
+    {
+        PublicKeyPacket pubKeyData = privKey.getPublicKeyPacket();
+        ECDHPublicBCPGKey ecKey = (ECDHPublicBCPGKey)pubKeyData.getKey();
+
+        byte[] enc = secKeyData[0];
+
+        int pLen = ((((enc[0] & 0xff) << 8) + (enc[1] & 0xff)) + 7) / 8;
+        byte[] pEnc = new byte[pLen];
+
+        System.arraycopy(enc, 2, pEnc, 0, pLen);
+
+        byte[] keyEnc = new byte[enc[pLen + 2]];
+
+        System.arraycopy(enc, 2 + pLen + 1, keyEnc, 0, keyEnc.length);
+
+        byte[] secretScalar = ((ECSecretBCPGKey) privKey.getPrivateKeyDataPacket()).getX().toByteArray();
+        secretScalar = Arrays.reverse(secretScalar);
+
+        byte[] sharedSecret = X25519.scalarMult(secretScalar, 0, pEnc, 1);
+
+        try
+        {
+            DerivationFunction kdf = new ConcatenationKDFGenerator(
+                    DigestFactory.getDigest(PGPUtil.getDigestName(ecKey.getHashAlgorithm())));
+            byte[] userKeyingMaterial = RFC6637Utils.createUserKeyingMaterial(pubKeyData, fingerprintCalculator);
+            kdf.init(new KDFParameters(sharedSecret, userKeyingMaterial));
+
+            byte[] kek = new byte[PGPUtil.getSymmetricCipherSize(ecKey.getSymmetricKeyAlgorithm())];
+            kdf.generateBytes(kek, 0, kek.length);
+
+            Cipher c = helper.createKeyWrapper(ecKey.getSymmetricKeyAlgorithm());
+            c.init(Cipher.UNWRAP_MODE, new SecretKeySpec(kek, PGPUtil.getSymmetricCipherName(ecKey.getSymmetricKeyAlgorithm())));
+            Key paddedSessionKey = c.unwrap(keyEnc, "Session", Cipher.SECRET_KEY);
+
+            return PGPPad.unpadSessionData(paddedSessionKey.getEncoded());
+        }
+        catch (InvalidKeyException e)
+        {
+            throw new PGPException("error setting asymmetric cipher", e);
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            throw new PGPException("error setting asymmetric cipher", e);
+        }
+        catch (IOException e)
+        {
+            throw new PGPException("error setting asymmetric cipher", e);
+        }
     }
 
     private byte[] decryptSessionData(JcaPGPKeyConverter converter, PGPPrivateKey privKey, byte[][] secKeyData)

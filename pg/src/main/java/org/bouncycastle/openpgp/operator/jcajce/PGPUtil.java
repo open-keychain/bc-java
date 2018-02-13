@@ -143,4 +143,16 @@ public class PGPUtil
     {
         return ECNamedCurveTable.getByOID(curveOID);
     }
+
+    public static int getSymmetricCipherSize(int symmetricKeyAlgorithm) {
+        switch (symmetricKeyAlgorithm) {
+            case SymmetricKeyAlgorithmTags.AES_128:
+                return 16;
+            case SymmetricKeyAlgorithmTags.AES_192:
+                return 24;
+            case SymmetricKeyAlgorithmTags.AES_256:
+                return 32;
+        }
+        throw new IllegalArgumentException("invalid symmetric algorithm for this method");
+    }
 }

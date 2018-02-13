@@ -54,7 +54,7 @@ public class PublicKeyPacket
             if (params != null) {
                 key = candidateKey;
             } else {
-                key = new OpaquePublicBCPGKey(in);
+                key = new OpaquePublicBCPGKey(candidateKey.getEncoded());
             }
 
             break;
@@ -65,7 +65,7 @@ public class PublicKeyPacket
             if (params != null) {
                 key = candidateKey;
             } else {
-                key = new OpaquePublicBCPGKey(in);
+                key = new OpaquePublicBCPGKey(candidateKey.getEncoded());
             }
 
             break;

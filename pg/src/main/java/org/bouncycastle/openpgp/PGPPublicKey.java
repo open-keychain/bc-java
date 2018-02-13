@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.bouncycastle.asn1.cryptlib.CryptlibObjectIdentifiers;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.bcpg.BCPGKey;
@@ -89,7 +90,7 @@ public class PGPPublicKey
             {
                 X9ECParameters ecParameters = ECNamedCurveTable.getByOID(((ECPublicBCPGKey)key).getCurveOID());
 
-                if (ecParameters != null)
+                if (CryptlibObjectIdentifiers.curvey25519.equals(((ECPublicBCPGKey) key).getCurveOID()))
                 {
                     this.keyStrength = ecParameters.getCurve().getFieldSize();
                 }

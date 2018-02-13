@@ -19,6 +19,7 @@ import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.bcpg.ECDHPublicBCPGKey;
 import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 import org.bouncycastle.bcpg.PublicKeyPacket;
+import org.bouncycastle.jcajce.provider.asymmetric.util.ECUtil;
 import org.bouncycastle.jcajce.spec.UserKeyingMaterialSpec;
 import org.bouncycastle.jcajce.util.DefaultJcaJceHelper;
 import org.bouncycastle.jcajce.util.NamedJcaJceHelper;
@@ -137,7 +138,7 @@ public class JcePublicKeyDataDecryptorFactoryBuilder
     {
         PublicKeyPacket pubKeyData = privKey.getPublicKeyPacket();
         ECDHPublicBCPGKey ecKey = (ECDHPublicBCPGKey)pubKeyData.getKey();
-        X9ECParameters x9Params = NISTNamedCurves.getByOID(ecKey.getCurveOID());
+        X9ECParameters x9Params = ECUtil.getNamedCurveByOid(ecKey.getCurveOID());
 
         byte[] enc = secKeyData[0];
 

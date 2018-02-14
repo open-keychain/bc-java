@@ -651,9 +651,11 @@ public class CustomNamedCurves
         nameToCurve.put(name, curve);
     }
 
+    public static final ASN1ObjectIdentifier CV25519 = new ASN1ObjectIdentifier("1.3.6.1.4.1.3029.1.5.1");
+
     static
     {
-        defineCurve("curve25519", curve25519);
+        defineCurveWithOID("curve25519", CV25519, curve25519);
 
 //        defineCurveWithOID("secp112r1", SECObjectIdentifiers.secp112r1, secp112r1);
 //        defineCurveWithOID("secp112r2", SECObjectIdentifiers.secp112r2, secp112r2);

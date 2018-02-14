@@ -9,6 +9,8 @@ import org.bouncycastle.asn1.cryptopro.ECGOST3410NamedCurves;
 import org.bouncycastle.asn1.nist.NISTNamedCurves;
 import org.bouncycastle.asn1.sec.SECNamedCurves;
 import org.bouncycastle.asn1.teletrust.TeleTrusTNamedCurves;
+import org.bouncycastle.crypto.ec.CustomNamedCurves;
+
 
 /**
  * A general class that reads all X9.62 style EC curve tables.
@@ -46,6 +48,10 @@ public class ECNamedCurveTable
         {
             ecP = ANSSINamedCurves.getByName(name);
         }
+        if (ecP == null)
+        {
+            ecP = CustomNamedCurves.getByName(name);
+        }
 
         return ecP;
     }
@@ -79,6 +85,10 @@ public class ECNamedCurveTable
         if (oid == null)
         {
             oid = ANSSINamedCurves.getOID(name);
+        }
+        if (oid == null)
+        {
+            oid = CustomNamedCurves.getOID(name);
         }
 
         return oid;
@@ -116,6 +126,11 @@ public class ECNamedCurveTable
             name = ECGOST3410NamedCurves.getName(oid);
         }
 
+        if (name == null)
+        {
+            name = CustomNamedCurves.getName(oid);
+        }
+
         return name;
     }
 
@@ -146,6 +161,10 @@ public class ECNamedCurveTable
         if (ecP == null)
         {
             ecP = ANSSINamedCurves.getByOID(oid);
+        }
+        if (ecP == null)
+        {
+            ecP = CustomNamedCurves.getByOID(oid);
         }
 
         return ecP;

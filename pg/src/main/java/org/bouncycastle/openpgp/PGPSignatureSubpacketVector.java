@@ -9,6 +9,7 @@ import org.bouncycastle.bcpg.SignaturePacket;
 import org.bouncycastle.bcpg.SignatureSubpacket;
 import org.bouncycastle.bcpg.SignatureSubpacketTags;
 import org.bouncycastle.bcpg.sig.Features;
+import org.bouncycastle.bcpg.sig.IntendedRecipientFingerprint;
 import org.bouncycastle.bcpg.sig.IssuerKeyID;
 import org.bouncycastle.bcpg.sig.KeyExpirationTime;
 import org.bouncycastle.bcpg.sig.KeyFlags;
@@ -142,6 +143,23 @@ public class PGPSignatureSubpacketVector
         }
         
         return ((SignatureCreationTime)p).getTime();
+    }
+
+    public List<byte[]> getIntendedRecipientFingerprints()
+    {
+        SignatureSubpacket[]    ps = this.getSubpackets(SignatureSubpacketTags.INTENDED_RECIPIENT);
+
+        if (ps == null)
+        {
+            return null;
+        }
+
+        List<byte[]> result = new ArrayList<byte[]>();
+        for (SignatureSubpacket p : ps) {
+            byte[] fingerprint = ((IntendedRecipientFingerprint) p).getFingerprint();
+            result.add(fingerprint);
+        }
+        return result;
     }
     
     /**

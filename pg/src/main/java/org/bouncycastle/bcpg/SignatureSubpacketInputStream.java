@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.bouncycastle.bcpg.sig.Exportable;
+import org.bouncycastle.bcpg.sig.IntendedRecipientFingerprint;
 import org.bouncycastle.bcpg.sig.IssuerKeyID;
 import org.bouncycastle.bcpg.sig.KeyExpirationTime;
 import org.bouncycastle.bcpg.sig.KeyFlags;
@@ -145,6 +146,8 @@ public class SignatureSubpacketInputStream
             return new SignerUserID(isCritical, isLongLength, data);
         case NOTATION_DATA:
             return new NotationData(isCritical, isLongLength, data);
+        case INTENDED_RECIPIENT:
+            return new IntendedRecipientFingerprint(isCritical, isLongLength, data);
         }
 
         return new SignatureSubpacket(type, isCritical, isLongLength, data);

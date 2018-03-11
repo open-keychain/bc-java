@@ -10,6 +10,7 @@ import org.bouncycastle.bcpg.SignatureSubpacketTags;
 import org.bouncycastle.bcpg.sig.EmbeddedSignature;
 import org.bouncycastle.bcpg.sig.Exportable;
 import org.bouncycastle.bcpg.sig.Features;
+import org.bouncycastle.bcpg.sig.IntendedRecipientFingerprint;
 import org.bouncycastle.bcpg.sig.IssuerKeyID;
 import org.bouncycastle.bcpg.sig.KeyExpirationTime;
 import org.bouncycastle.bcpg.sig.KeyFlags;
@@ -189,6 +190,11 @@ public class PGPSignatureSubpacketGenerator
     {
         list.add(new RevocationKey(isCritical, RevocationKeyTags.CLASS_DEFAULT, keyAlgorithm,
             fingerprint));
+    }
+
+    public void addIntendedRecipient(boolean isCritical, byte[] intendedRecipientFingerprint)
+    {
+        list.add(new IntendedRecipientFingerprint(isCritical, intendedRecipientFingerprint));
     }
 
     /**

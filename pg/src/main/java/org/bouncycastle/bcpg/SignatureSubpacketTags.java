@@ -29,4 +29,5 @@ public interface SignatureSubpacketTags
     public static final int FEATURES = 30;             // features
     public static final int SIGNATURE_TARGET = 31;     // signature target
     public static final int EMBEDDED_SIGNATURE = 32;   // embedded signature
+    public static final int INTENDED_RECIPIENT = 35;   // intended recipient
 }

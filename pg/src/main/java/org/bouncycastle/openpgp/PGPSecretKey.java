@@ -151,11 +151,11 @@ public class PGPSecretKey
 
                 if (isMasterKey)
                 {
-                    return new SecretKeyPacket(pubKey.publicPk, encAlgorithm, null, null, bOut.toByteArray());
+                    return new SecretKeyPacket(pubKey.publicPk, SymmetricKeyAlgorithmTags.NULL, SecretKeyPacket.USAGE_NONE, null, null, bOut.toByteArray());
                 }
                 else
                 {
-                    return new SecretSubkeyPacket(pubKey.publicPk, encAlgorithm, null, null, bOut.toByteArray());
+                    return new SecretSubkeyPacket(pubKey.publicPk, SymmetricKeyAlgorithmTags.NULL, SecretKeyPacket.USAGE_NONE, null, null, bOut.toByteArray());
                 }
             }
         }

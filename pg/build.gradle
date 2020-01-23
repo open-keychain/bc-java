@@ -1,25 +1,5 @@
 dependencies {
-    compile project(':core')
-    compile project(':prov')
-}
-
-jar.baseName = "bcpg-$vmrange"
-
-task sourcesJar(type: Jar) {
-  baseName = jar.baseName
-  classifier = 'sources'
-  from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-  baseName = jar.baseName
-  classifier = 'javadoc'
-  from javadoc.destinationDir
-}
-
-artifacts {
-    archives jar
-    archives javadocJar
-    archives sourcesJar
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.68'
 }
 

@@ -2,8 +2,7 @@ apply plugin: 'java'
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile project(':openkeychain:extern:bouncycastle:core')
-    compile project(':openkeychain:extern:bouncycastle:prov')
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.64'
 }
 
 sourceCompatibility = 1.6

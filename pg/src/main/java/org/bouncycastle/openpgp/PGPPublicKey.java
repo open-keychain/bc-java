@@ -393,12 +393,12 @@ public class PGPPublicKey
     }
 
     /**
-     * Return true if this could be a master key.
+     * Return true if this is be a master key.
      * @return true if a master key.
      */
     public boolean isMasterKey()
     {
-        return (subSigs == null) && !(this.isEncryptionKey() && publicPk.getAlgorithm() != PublicKeyAlgorithmTags.RSA_GENERAL);
+        return (subSigs == null);
     }
     
     /**
